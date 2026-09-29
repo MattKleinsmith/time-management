@@ -1,0 +1,27 @@
+{
+  "name": "time-manager",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Personal time-management app layered on Google Calendar with nagging alerts",
+  "workspaces": [
+    "packages/core",
+    "packages/server",
+    "packages/web"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=@tm/server & npm run dev --workspace=@tm/web; wait",
+    "dev:web": "npm run dev --workspace=@tm/web",
+    "dev:server": "npm run dev --workspace=@tm/server",
+    "build": "npm run build --workspace=@tm/web",
+    "start": "npm run start --workspace=@tm/server",
+    "test": "vitest run",
+    "typecheck": "tsc -b packages/core packages/server packages/web",
+    "e2e": "node packages/web/e2e/smoke.mjs",
+    "icons": "node scripts/make-icons.mjs"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.7",
+    "@types/node": "^22.0.0"
+  }
+}
