@@ -47,5 +47,10 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      # While the repository's Pages source is still "Deploy from a branch", GitHub also runs its
+      # own Jekyll build of main on every push and it would overwrite this deployment. Waiting
+      # lets ours land last. Harmless (and removable) once Settings → Pages → Source = GitHub Actions.
+      - name: Wait for the legacy branch build to finish
+        run: sleep 90
       - id: deployment
         uses: actions/deploy-pages@v4
