@@ -42,8 +42,8 @@ self.addEventListener('push', (event) => {
     renotify: true,
     requireInteraction: true,
     data: { instanceKey: data.instanceKey },
-    icon: '/icons/icon-192.png',
-    badge: '/icons/icon-192.png',
+    icon: new URL('icons/icon-192.png', self.registration.scope).toString(),
+    badge: new URL('icons/icon-192.png', self.registration.scope).toString(),
     silent: data.sound === 'silent',
     actions: data.instanceKey
       ? [
@@ -66,7 +66,7 @@ self.addEventListener('notificationclick', (event) => {
           if (action === 'ack') s.acked[key] = new Date().toISOString();
           else s.snoozed[key] = new Date(Date.now() + 5 * 60_000).toISOString();
         });
-        await fetch('/api/push/ack', {
+        await fetch(new URL('api/push/ack', self.registration.scope).toString(), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'TimeManager' },
           body: JSON.stringify({ instanceKey: key, action, minutes: 5 }),
@@ -74,7 +74,7 @@ self.addEventListener('notificationclick', (event) => {
         return;
       }
       const all = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
-      const url = key ? `/?focus=${encodeURIComponent(key)}` : '/';
+      const url = key ? `${self.registration.scope}?focus=${encodeURIComponent(key)}` : self.registration.scope;
       const existing = all[0];
       if (existing) {
         await existing.focus();

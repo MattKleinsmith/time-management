@@ -32,11 +32,32 @@ Google Calendar  ──(Calendar API, sync tokens)──▶  @tm/core  ──▶
 - Mobile: Now view (current activity with progress, next activity, active alarms with Ack/Snooze, quick
   "+15m / Start now / Tomorrow" rescheduling), agenda, 3-day grid, bottom-sheet editor
 - PWA: installable, offline shell, notifications via the service worker, sounds (WebAudio), vibration
+- Static hosting mode (GitHub Pages) with browser-side Google sign-in
 - Optional **Web Push**: the server runs the same core planner every minute and pushes each reminder, so an installed
   PWA keeps nagging while closed (iOS 16.4+ Home Screen app)
 - Native bridge contract for a future iOS wrapper (`docs/NATIVE_BRIDGE.md`)
 
-## Quick start
+## Easiest way to try it: the static GitHub Pages build
+
+Every push to `main` (and to `claude/**` branches) runs `.github/workflows/pages.yml`, which builds the PWA in
+**static mode** and publishes it to `https://<user>.github.io/time-management/`. In static mode there is no
+server: the browser signs in to Google directly (OAuth implicit flow, redirect based, no client secret) and calls
+the Calendar API itself. Everything else is identical, including install-to-Home-Screen. Only server-side Web
+Push is unavailable there.
+
+One-time setup (5 minutes, works from a phone):
+
+1. https://console.cloud.google.com → create a project → **APIs & Services → Library** → enable **Google Calendar API**.
+2. **OAuth consent screen** → External → add your Google account under **Test users**.
+3. **Credentials → Create credentials → OAuth client ID → Web application** and add the authorized redirect URI
+   `https://<user>.github.io/time-management/` (exactly, with the trailing slash). Add
+   `http://localhost:5173/` too if you will run the dev server in static mode.
+4. Open the site, tap **Setup / change client ID**, paste the client ID, then **Sign in with Google**.
+   (Or store it as a repository variable `GOOGLE_CLIENT_ID` so the workflow bakes it in.)
+
+Access tokens last an hour; the app renews them silently by bouncing through Google when you return to it.
+
+## Quick start (with the server)
 
 Requirements: Node 20+ (tested on 22) and a Google Cloud project.
 

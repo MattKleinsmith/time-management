@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useStore } from '../lib/store';
 import { TmConfigForm } from './EventEditor';
 import { defaultTmConfig } from '@tm/core';
-import { apiPost, isMockMode, logout } from '../lib/api';
+import { apiPost, BASE, isMockMode, isStaticMode, logout } from '../lib/api';
 import { unlockAudio, playSound } from '../lib/delivery';
 
 function urlBase64ToUint8Array(base64String: string) {
@@ -80,7 +80,7 @@ export function SettingsView() {
             className="btn"
             onClick={async () => {
               await logout(false);
-              location.href = '/';
+              location.href = BASE;
             }}
           >
             Sign out
@@ -91,7 +91,7 @@ export function SettingsView() {
               onClick={async () => {
                 if (confirm('Disconnect Time Manager from your Google account? Your calendar is untouched.')) {
                   await logout(true);
-                  location.href = '/';
+                  location.href = BASE;
                 }
               }}
             >
@@ -201,7 +201,11 @@ export function SettingsView() {
               </div>
             )
           ) : (
-            <p className="muted small">Not configured on the server (set VAPID keys to enable). Without it, alerts fire only while Time Manager is open in the foreground.</p>
+            <p className="muted small">
+              {isStaticMode()
+                ? 'Not available on the static (GitHub Pages) build: there is no server to send pushes. Alerts fire while Time Manager is open; a native wrapper or the server build adds background delivery.'
+                : 'Not configured on the server (set VAPID keys to enable). Without it, alerts fire only while Time Manager is open in the foreground.'}
+            </p>
           )}
         </div>
         <p className="muted small">

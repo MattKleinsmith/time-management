@@ -1,6 +1,6 @@
 import { useStore, viewRange } from '../lib/store';
 import { fmtDate, fmtMonthYear } from '../lib/format';
-import { logout } from '../lib/api';
+import { asset, BASE, logout } from '../lib/api';
 
 export function TopBar() {
   const view = useStore((s) => s.view);
@@ -31,7 +31,7 @@ export function TopBar() {
     <header className="topbar">
       <div className="topbar-left">
         <button className="btn icon" title="Toggle help (?)" onClick={toggleHelp} aria-label="Help">
-          <img src="/icons/icon.svg" width={22} height={22} alt="" />
+          <img src={asset('icons/icon.svg')} width={22} height={22} alt="" />
         </button>
         <div className="seg desktop-only">
           <button className={view === 'day' ? 'active' : ''} onClick={() => setView('day')} title="Day view (d)">
@@ -107,7 +107,7 @@ export function TopBar() {
           onClick={async () => {
             if (confirm('Sign out of Time Manager?')) {
               await logout(false);
-              location.href = '/';
+              location.href = BASE;
             }
           }}
         >

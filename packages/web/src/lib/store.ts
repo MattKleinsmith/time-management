@@ -169,6 +169,7 @@ export const useStore = create<State>((set, get) => ({
         set({ status: 'unauthenticated', me: null });
         return;
       }
+      set({ error: undefined });
       const client = createClient(() => set({ status: 'unauthenticated' }));
       const engine = new SyncEngine(client, isMockMode() ? new MemoryPersistenceIfMock() : new IdbPersistence());
       await engine.load();

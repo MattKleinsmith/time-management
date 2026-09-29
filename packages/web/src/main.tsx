@@ -6,6 +6,8 @@ import './styles.css';
 import { useStore } from './lib/store';
 import { startAlertLoop } from './lib/delivery';
 import { loadLocalAlerts } from './lib/persistence';
+import { consumeRedirect, getStoredToken, tokenIsUsable, startLogin, getClientId } from './lib/auth';
+import { isStaticMode } from './lib/api';
 
 registerSW({ immediate: true });
 
@@ -17,6 +19,18 @@ navigator.serviceWorker?.addEventListener('message', async (ev) => {
   }
   if (data?.type === 'focus-instance' && data.instanceKey) useStore.getState().focusInstance(data.instanceKey);
 });
+
+// Static (GitHub Pages) mode: pick up the Google OAuth redirect response.
+if (isStaticMode()) {
+  const r = consumeRedirect();
+  if (r.error) useStore.setState({ error: `Google sign-in: ${r.error}` });
+  // Renew the token proactively when the app comes back to the foreground.
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible' || useStore.getState().status !== 'ready') return;
+    const t = getStoredToken();
+    if (t && !tokenIsUsable(t, 10 * 60_000) && getClientId()) startLogin({ silent: true });
+  });
+}
 
 // ?ack=<key> / ?snooze=<key> deep links from notifications.
 const params = new URLSearchParams(location.search);
