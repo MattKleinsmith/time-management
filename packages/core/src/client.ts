@@ -72,8 +72,16 @@ export function createHttpGcalClient(opts: HttpGcalClientOptions): GcalClient {
       } while (pageToken);
       return items;
     },
-    listEvents(calendarId: string, params: EventsListParams) {
-      return request<GcalEventsListResponse>('GET', `/calendars/${enc(calendarId)}/events`, { ...params, fields: EVENT_FIELDS });
+    async listEvents(calendarId: string, params: EventsListParams) {
+      try {
+        return await request<GcalEventsListResponse>('GET', `/calendars/${enc(calendarId)}/events`, { ...params, fields: EVENT_FIELDS });
+      } catch (e) {
+        // A rejected field selector must never break sync: fall back to the full resource.
+        if (e instanceof GcalError && e.status === 400 && /field/i.test(e.message)) {
+          return request<GcalEventsListResponse>('GET', `/calendars/${enc(calendarId)}/events`, { ...params });
+        }
+        throw e;
+      }
     },
     getEvent(calendarId, eventId) {
       return request<GcalEvent>('GET', `/calendars/${enc(calendarId)}/events/${enc(eventId)}`);
